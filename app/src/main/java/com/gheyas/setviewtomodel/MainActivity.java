@@ -1,16 +1,20 @@
 package com.gheyas.setviewtomodel;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.widget.TextViewCompat;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.lang.reflect.Field;
 import java.util.Hashtable;
@@ -66,18 +70,18 @@ public class MainActivity extends AppCompatActivity {
             TagValueModel tagValueModel = (TagValueModel) v.getTag(R.string.view_tag);
             String key;
             String value = "";
-            if (v instanceof TextInputEditText) {
+            if (v instanceof AppCompatEditText) {
                 if (!tagValueModel.getText().isEmpty()) {
                     key = tagValueModel.getText();
-                    value = ((TextInputEditText) v).getText().toString();
+                    value = ((AppCompatEditText) v).getText().toString();
                     entityList.put(key, value);
                 }
                 if (!tagValueModel.getTag().isEmpty()) {
                     key = tagValueModel.getTag();
-                    value = ((TextInputEditText) v).getTag().toString();
+                    value = ((AppCompatEditText) v).getTag().toString();
                     entityList.put(key, value);
                 }
-            } else if (v instanceof ViewGroup) {
+            }else if (v instanceof ViewGroup) {
                 ViewGroup vg = (ViewGroup) v;
                 for (int i = 0; i < vg.getChildCount(); i++) {
                     View child = vg.getChildAt(i);
@@ -91,11 +95,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setModelToViewByTag(View v, String fieldName, Object value) {
         try {
-            if (v instanceof TextInputEditText) {
+            if (v instanceof TextView) {
                 if (((TagValueModel) v.getTag(R.string.view_tag)).getText().equals(fieldName))
-                    ((TextInputEditText) v).setText(value.toString());
+                    ((TextView) v).setText(value.toString());
                 if (((TagValueModel) v.getTag(R.string.view_tag)).getTag().equals(fieldName))
-                    ((TextInputEditText) v).setTag(value);
+                    ((TextView) v).setTag(value);
             }else if (v instanceof ViewGroup) {
                 ViewGroup vg = (ViewGroup) v;
                 for (int i = 0; i < vg.getChildCount(); i++) {
