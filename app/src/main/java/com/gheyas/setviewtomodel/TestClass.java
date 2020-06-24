@@ -4,7 +4,7 @@ public class TestClass {
     private String NameText;
     private int NameTag;
 
-    public String getNameText(boolean name) {
+    public String getNameText() {
         return NameText;
     }
 

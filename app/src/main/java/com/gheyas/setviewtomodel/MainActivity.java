@@ -7,10 +7,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.lang.reflect.Field;
 import java.util.Hashtable;
@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnViewToModel = findViewById(R.id.btn_view_to_model);
         Button btnModelToView = findViewById(R.id.btn_model_to_view);
-        TextInputEditText editText = findViewById(R.id.text_xml);
+        final TextInputEditText editText = findViewById(R.id.text_xml);
         TagValueModel tagValueModel = new TagValueModel();
         editText.setTag(1);
         tagValueModel.setText("NameText");
@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
         btnViewToModel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TestClass testClass = (TestClass) setViewToModel(TestClass.class);
-                int a = 1;
+                TestClass testClass = (TestClass) setViewToModelByTag(TestClass.class);
+                Toast.makeText(MainActivity.this, testClass.getNameText() + " " + testClass.getNameTag(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -47,20 +47,21 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 TestClass testClass = new TestClass();
                 testClass.setNameText("AliDoran");
-                testClass.setNameTag(1);
-                setModelToViews(testClass);
+                testClass.setNameTag(2);
+                setModelToViewsByTag(testClass);
+                Toast.makeText(MainActivity.this, editText.getText().toString() + " " + editText.getTag().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
 
     }
 
-    private void getChildView() {
+    private void getChildViewByTag() {
         ViewGroup root = (ViewGroup) getWindow().getDecorView().getRootView();
-        getChildView(root, dictionary);
+        getChildViewByTag(root, dictionary);
     }
 
-    private void getChildView(View v, Map<String, String> entityList) {
+    private void getChildViewByTag(View v, Map<String, String> entityList) {
         try {
             TagValueModel tagValueModel = (TagValueModel) v.getTag(R.string.view_tag);
             String key;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 ViewGroup vg = (ViewGroup) v;
                 for (int i = 0; i < vg.getChildCount(); i++) {
                     View child = vg.getChildAt(i);
-                    getChildView(child, entityList);
+                    getChildViewByTag(child, entityList);
                 }
             }
         } catch (Exception e) {
@@ -90,26 +91,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void setModelToViewByTag(View v, String fieldName, Object value) {
         try {
-            if (v instanceof MaterialTextView || v instanceof TextInputEditText) {
-                int viewId = v.getId();
-                if (value != null && viewId != -1) {
-                    String id = getResources().getResourceEntryName(viewId);
-                    String[] keys = id.split("___", -1);
-                    for (int i = 0; i < keys.length; i++) {
-                        if (keys[i].equals(fieldName)) {
-                            if (i == 0 && keys.length > 1)
-                                v.setTag(value.toString());
-                            else {
-                                if (v instanceof MaterialTextView)
-                                    ((MaterialTextView) v).setText(value.toString());
-                                else
-                                    ((TextInputEditText) v).setText(value.toString());
-                            }
-                        }
-                    }
-                }
-
-            } else if (v instanceof ViewGroup) {
+            if (v instanceof TextInputEditText) {
+                if (((TagValueModel) v.getTag(R.string.view_tag)).getText().equals(fieldName))
+                    ((TextInputEditText) v).setText(value.toString());
+                if (((TagValueModel) v.getTag(R.string.view_tag)).getTag().equals(fieldName))
+                    ((TextInputEditText) v).setTag(value);
+            }else if (v instanceof ViewGroup) {
                 ViewGroup vg = (ViewGroup) v;
                 for (int i = 0; i < vg.getChildCount(); i++) {
                     View child = vg.getChildAt(i);
@@ -122,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public <Model> void setModelToViews(Model model) {
+    public <Model> void setModelToViewsByTag(Model model) {
         ViewGroup root = (ViewGroup) getWindow().getDecorView().getRootView();
         try {
             for (Field field : model.getClass().getDeclaredFields()) {
@@ -132,15 +119,13 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("Error", e.toString());
         }
-
     }
 
-    public <T> Object setViewToModel(Class<T> type) {
-        getChildView();
+    public <T> Object setViewToModelByTag(Class<T> type) {
+        getChildViewByTag();
         try {
             T model = type.newInstance();
             Field[] allFields = model.getClass().getDeclaredFields();
-
             for (Field f : allFields) {
                 if (f.getType() == Long.TYPE || f.getType() == Integer.TYPE) {
                     f.setAccessible(true);
