@@ -2,8 +2,8 @@ package com.gheyas.setviewtomodel;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.core.widget.TextViewCompat;
 
+import android.graphics.ColorSpace;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.lang.reflect.Field;
 import java.util.Hashtable;
@@ -41,18 +40,18 @@ public class MainActivity extends AppCompatActivity {
         btnViewToModel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TestClass testClass = (TestClass) setViewToModelByTag(TestClass.class);
-                Toast.makeText(MainActivity.this, testClass.getNameText() + " " + testClass.getNameTag(), Toast.LENGTH_SHORT).show();
+                TestModel testModel = (TestModel) setViewToModelByTag(TestModel.class);
+                Toast.makeText(MainActivity.this, testModel.getNameText() + " " + testModel.getNameTag(), Toast.LENGTH_SHORT).show();
             }
         });
 
         btnModelToView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TestClass testClass = new TestClass();
-                testClass.setNameText("AliDoran");
-                testClass.setNameTag(2);
-                setModelToViewsByTag(testClass);
+                TestModel testModel = new TestModel();
+                testModel.setNameText("AliDoran");
+                testModel.setNameTag(2);
+                setModelToViewsByTag(testModel);
                 Toast.makeText(MainActivity.this, editText.getText().toString() + " " + editText.getTag().toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -174,6 +173,24 @@ public class MainActivity extends AppCompatActivity {
             Log.e("getValue", e.getMessage());
         }
         return value;
+    }
+
+    private static String getFieldName(Object fieldObject, Object parent) {
+        java.lang.reflect.Field[] allFields = parent.getClass().getFields();
+        for (java.lang.reflect.Field field : allFields) {
+            Object currentFieldObject;
+            try {
+                currentFieldObject = field.get(parent);
+            } catch (Exception e) {
+                return null;
+            }
+            boolean isWantedField = fieldObject.equals(currentFieldObject);
+            if (isWantedField) {
+                String fieldName = field.getName();
+                return fieldName;
+            }
+        }
+        return null;
     }
 
 }

@@ -1,6 +1,11 @@
 package com.gheyas.setviewtomodel;
 
-public class TestClass {
+import android.icu.text.TimeZoneNames;
+
+import java.lang.reflect.Field;
+import java.util.jar.Attributes;
+
+public class TestModel {
     private String NameText;
     private int NameTag;
 
